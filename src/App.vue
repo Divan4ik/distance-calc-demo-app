@@ -1,28 +1,55 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div>
+      <button @click="createForm()" type="button" name="button">Добавить форму</button>
+      <Form v-on:form-remove="removeForm" v-for="(form, index) in forms" v-bind="form" :key='index'></Form>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+import uuidv1 from 'uuid/v1';
+import Form from './components/Form.vue'
 
 export default {
   name: 'app',
+  data() {
+    return {
+      true: true,
+      forms: []
+    }
+  },
+  mounted() {
+    this.createForm()
+  },
   components: {
-    HelloWorld
+    Form
+  },
+  methods: {
+    createForm() {
+      if(this.forms.length >= 10) return;
+
+      let obj = {uuid: uuidv1()};
+      this.forms.push(obj)
+    },
+    removeForm(data) {
+      if(this.forms.length === 1) return;
+      for (const [index, form] of this.forms.entries()) {
+        if (data === form.uuid ) {
+          this.forms.splice(index, 1);
+        }
+      }
+    }
   }
 }
 </script>
 
+
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+
+.form-list {
+  padding: 10px
 }
+
 </style>
