@@ -2,8 +2,19 @@
   <div id="app">
     <div>
       <button @click="createForm()" type="button" name="button">Добавить форму</button>
-      <Form v-on:form-remove="removeForm" v-for="(form, index) in forms" v-bind="form" :key='index'></Form>
+
+      <Form
+      v-on:form-remove="removeForm"
+      v-on:calculate="calculate"
+      v-for="(form, index) in forms"
+      v-bind="form"
+      :key='index'
+      :disabled="disabled"
+      ></Form>
     </div>
+
+    <log :list="log" />
+
     <yandex-map
     :coords="[54.62896654088406, 39.731893822753904]"
     style="width: 0px; height: 0px;"
@@ -16,6 +27,7 @@
 
 import uuidv1 from 'uuid/v1';
 import Form from './components/Form.vue'
+import Log from './components/Log.vue'
 import { yandexMap } from 'vue-yandex-maps'
 import { getDistanceBetween } from './Api'
 
@@ -23,8 +35,15 @@ export default {
   name: 'app',
   data() {
     return {
+      disabled: true,
       true: true,
-      forms: []
+      forms: [],
+      log: [
+        {
+          type: 'error',
+          text: 'Это пример ошибки'
+        }
+      ]
     }
   },
   mounted() {
@@ -32,15 +51,19 @@ export default {
   },
   components: {
     Form,
+    Log,
     yandexMap
   },
   methods: {
+    //Добавляет форму
     createForm() {
       if(this.forms.length >= 10) return;
 
       let obj = {uuid: uuidv1()};
       this.forms.push(obj)
     },
+
+    // Удаляет форму
     removeForm(data) {
       if(this.forms.length === 1) return;
       for (const [index, form] of this.forms.entries()) {
@@ -49,9 +72,31 @@ export default {
         }
       }
     },
+
+    // ожидаем загрузки карты
     async initHandler() {
-        let result = await getDistanceBetween('Москва', 'Санкт-Петербург')
-        console.log(result)
+      this.enableForm()
+    },
+
+    async calculate(data) {
+      this.disableForm()
+      try {
+        let result = await getDistanceBetween(data.from, data.to)
+        this.log.push({type: 'info', text: result})
+        this.enableForm()
+      } catch(err) {
+        this.log.push({type: 'error', text: err.message})
+        this.enableForm()
+      }
+
+    },
+
+    disableForm() {
+      this.disabled = true
+    },
+
+    enableForm() {
+      this.disabled = false
     }
   }
 }
