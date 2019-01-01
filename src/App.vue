@@ -4,6 +4,11 @@
       <button @click="createForm()" type="button" name="button">Добавить форму</button>
       <Form v-on:form-remove="removeForm" v-for="(form, index) in forms" v-bind="form" :key='index'></Form>
     </div>
+    <yandex-map
+    :coords="[54.62896654088406, 39.731893822753904]"
+    style="width: 0px; height: 0px;"
+    @map-was-initialized="initHandler"
+    ></yandex-map>
   </div>
 </template>
 
@@ -11,6 +16,8 @@
 
 import uuidv1 from 'uuid/v1';
 import Form from './components/Form.vue'
+import { yandexMap } from 'vue-yandex-maps'
+import { getDistanceBetween } from './Api'
 
 export default {
   name: 'app',
@@ -24,7 +31,8 @@ export default {
     this.createForm()
   },
   components: {
-    Form
+    Form,
+    yandexMap
   },
   methods: {
     createForm() {
@@ -40,6 +48,10 @@ export default {
           this.forms.splice(index, 1);
         }
       }
+    },
+    async initHandler() {
+        let result = await getDistanceBetween('Москва', 'Санкт-Петербург')
+        console.log(result)
     }
   }
 }
