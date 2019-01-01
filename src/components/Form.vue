@@ -18,8 +18,6 @@
 
 <script>
 
-import EventBus from '../EventBus';
-
 export default {
   name: 'App',
   props: {
